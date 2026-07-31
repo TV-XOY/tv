@@ -1,6 +1,6 @@
 #EXTM3U
 #EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:10
+#EXT-X-TARGETDURATION:2
 #EXT-X-MEDIA-SEQUENCE:0
 #EXT-X-PLAYLIST-TYPE:VOD
 #EXTINF:2.000000,
@@ -14,7 +14,13 @@ intro_003.ts
 #EXTINF:2.000000,
 intro_004.ts
 #EXTINF:2.000000,
-intro_000.ts
+intro_001.ts
+#EXTINF:2.000000,
+intro_002.ts
+#EXTINF:2.000000,
+intro_003.ts
+#EXTINF:2.000000,
+intro_004.ts
 #EXTINF:2.000000,
 intro_001.ts
 #EXTINF:2.000000,
@@ -24,8 +30,6 @@ intro_003.ts
 #EXTINF:2.000000,
 intro_004.ts
 #EXTINF:2.000000,
-intro_000.ts
-#EXTINF:2.000000,
 intro_001.ts
 #EXTINF:2.000000,
 intro_002.ts
@@ -34,8 +38,6 @@ intro_003.ts
 #EXTINF:2.000000,
 intro_004.ts
 #EXTINF:2.000000,
-intro_000.ts
-#EXTINF:2.000000,
 intro_001.ts
 #EXTINF:2.000000,
 intro_002.ts
@@ -43,8 +45,6 @@ intro_002.ts
 intro_003.ts
 #EXTINF:2.000000,
 intro_004.ts
-#EXTINF:2.000000,
-intro_000.ts
 #EXTINF:2.000000,
 intro_001.ts
 #EXTINF:2.000000,
