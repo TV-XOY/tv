@@ -129,9 +129,9 @@
   ],
   "Saturday": [
     {"start": "000000", "stop": "020000", "channel": "TELEYUCATÁN.mx", "title": "Naturaleza espectacular (Continuación)"},
-    {"start": "070000", "stop": "090000", "channel": "TELEYUCATÁN.mx", "title": "Cine Mexicano 1"},
-    {"start": "090000", "stop": "093000", "channel": "TELEYUCATÁN.mx", "title": "El Maestro Abraham"},
-    {"start": "093000", "stop": "100000", "channel": "TELEYUCATÁN.mx", "title": "Curiosamente"},
+    {"start": "070000", "stop": "090000", "channel": "TELEYUCATÁN.mx", "title": "Cine Mexicano 1", "desc": "PELICULAS DEL CINE MEXICANO, CLASICAS Y DE COLOR", "icon": "https://teleyucatan.com/img/Programas/Cine_mexicano/cine_mexicano.webp"},
+    {"start": "090000", "stop": "093000", "channel": "TELEYUCATÁN.mx", "title": "El Maestro Abraham", "icon": "https://teleyucatan.com/img/Programas/Maestro_abraham/abraham_.webp"},
+    {"start": "093000", "stop": "100000", "channel": "TELEYUCATÁN.mx", "title": "Curiosamente", "icon": "https://teleyucatan.com/img/Programas/Curiosamente/curiosamente_ep.webp"},
     {"start": "100000", "stop": "110000", "channel": "TELEYUCATÁN.mx", "title": "La chunchetería (Rep. Lunes)"},
     {"start": "110000", "stop": "113000", "channel": "TELEYUCATÁN.mx", "title": "El show de Chupirul y Caramelo"},
     {"start": "113000", "stop": "120000", "channel": "TELEYUCATÁN.mx", "title": "Noticiero científico"},
