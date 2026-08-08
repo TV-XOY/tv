@@ -15,9 +15,11 @@ dia_manana = manana_merida.strftime("%A").strip()
 with open("plantilla.json", "r", encoding="utf-8") as f:
     plantilla = json.load(f)
 
+# 3. Iniciar la estructura del mapa XMLTV con tu firma personalizada
 xml_lines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<tv generator-info-name="GitHub_EPG_Merida_Premium">',
+    '<!-- Codigo by TV XOY generado por Gemini super IA -->', # Comentario oculto en el archivo
+    '<tv generator-info-name="Codigo by TV XOY generado por Gemini super IA">', # Firma oficial para reproductores
 ]
 
 if "canales" in plantilla:
