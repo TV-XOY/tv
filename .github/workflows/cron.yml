@@ -1,0 +1,30 @@
+name: Actualizador Diario de EPG
+
+on:
+  schedule:
+    # Se ejecuta automáticamente todos los días a las 02:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Permite probarlo de forma manual apretando un botón
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Descargar repositorio
+      uses: actions/checkout@v3
+
+    - name: Configurar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Ejecutar el generador de EPG
+      run: python generador.py
+
+    - name: Subir cambios a GitHub
+      run: |
+        git config --global user.name "EPG Bot"
+        git config --global user.email "bot@github.com"
+        git add mx.xml.gz
+        git commit -m "Actualización diaria de guía de canales [Automático]" || echo "Sin cambios"
+        git push
