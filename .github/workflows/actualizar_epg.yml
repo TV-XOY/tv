@@ -2,11 +2,11 @@ name: Actualizar Guia StarTV EPG
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Se ejecuta automáticamente todos los días a la medianoche (UTC)
-  workflow_dispatch: # Te permite ejecutarlo manualmente desde la pestaña "Actions"
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 permissions:
-  contents: write # Permiso crucial para que el bot pueda guardar el archivo en tu repo
+  contents: write
 
 jobs:
   build:
@@ -22,7 +22,8 @@ jobs:
 
     - name: Instalar dependencias
       run: |
-        pip install requests beautifulsoup4
+        pip install requests beautifulsoup4 playwright
+        playwright install chromium --with-deps
 
     - name: Ejecutar script de scraping
       run: python script_epg.py
