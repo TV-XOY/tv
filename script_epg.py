@@ -4,7 +4,7 @@ from datetime import datetime
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
-URL = "https://reportv.com.ar"
+URL = "https://www.reportv.com.ar/finder/index/3129/MnTip-Programacion"
 
 def parse_time(time_str):
     now = datetime.now()
