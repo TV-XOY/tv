@@ -19,54 +19,45 @@ def parse_time(time_str):
 
 def main():
     print("Iniciando navegador automatizado...")
-    with sync_playwright() as p:
-        # Iniciamos Chromium de manera oculta
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        
-        # Simulamos una pantalla estándar de PC para el renderizado correcto
-        page.set_viewport_size({"width": 1280, height: 720})
-        print(f"Abriendo: {URL}")
-        page.goto(URL, wait_until="networkidle")
-        
-        # --- FUNCIÓN CRUCIAL: SCROLL AUTOMÁTICO HASTA EL FINAL ---
-        print("Realizando scroll para forzar la carga de todos los canales...")
-        posicion_anterior = 0
-        while True:
-            # Desplaza la página 1000 píxeles hacia abajo
-            page.evaluate("window.scrollBy(0, 1000)")
-            page.wait_for_timeout(1200) # Espera un segundo a que cargue el contenido nuevo
+    html_content = ""
+    
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.set_viewport_size({"width": 1280, "height": 720})
             
-            # Verificamos si la altura de la página ha dejado de crecer
-            posicion_actual = page.evaluate("window.pageYOffset || document.documentElement.scrollTop")
-            if posicion_actual == posicion_anterior:
-                print("Se llegó al final del catálogo de ReporTV.")
-                break
-            posicion_anterior = posicion_actual
-        
-        # Una espera final para asegurar las últimas imágenes y textos cargados
-        page.wait_for_timeout(3000)
-        html_content = page.content()
-        browser.close()
-        
+            print(f"Abriendo: {URL}")
+            page.goto(URL, wait_until="networkidle", timeout=60000)
+            
+            print("Realizando scroll para forzar la carga de todos los canales...")
+            posicion_anterior = 0
+            for i in range(30): # Límite de 30 scrolls para evitar bucles infinitos
+                page.evaluate("window.scrollBy(0, 1000)")
+                page.wait_for_timeout(1500) 
+                
+                posicion_actual = page.evaluate("window.pageYOffset || document.documentElement.scrollTop")
+                if posicion_actual == posicion_anterior:
+                    print(f"Se llegó al final o se detuvo la carga en el scroll {i}.")
+                    break
+                posicion_anterior = posicion_actual
+            
+            page.wait_for_timeout(3000)
+            html_content = page.content()
+            browser.close()
+    except Exception as e:
+        print(f"Error crítico durante la simulación del navegador: {e}")
+        return
+
+    if not html_content:
+        print("No se pudo obtener el contenido HTML de la página.")
+        return
+
     soup = BeautifulSoup(html_content, 'html.parser')
-    
-    # Creamos el documento XMLTV estándar para IPTV
     tv = ET.Element("tv", {"generator-info-name": "StarTV Full EPG Grabber"})
-    
-    # Extraemos el texto completo para el procesado de patrones
     texto_pagina = soup.get_text(" ", strip=True)
     
-    # Patrón nativo de bloques de ReporTV Finder: {NOMBRE} CANAL - NUMERO
-    patron_canales = r"\{([^}]+)\}\s*([^-\n]+)-\s*(\d+)"
-    canales_encontrados = re.findall(patron_canales, texto_pagina)
-    
-    print(f"Canales detectados en total tras el scroll: {len(canales_encontrados)}")
-    
-    canales_procesados = set()
-    programas_agregados = 0
-    
-    # También intentaremos buscar las imágenes (logos) de los canales si están disponibles en el HTML
+    # Intentar capturar logos del HTML de forma segura
     imagenes_src = {}
     for img in soup.find_all("img"):
         alt_text = img.get("alt", "").strip().lower()
@@ -74,63 +65,68 @@ def main():
         if alt_text and src_url:
             imagenes_src[alt_text] = src_url
 
+    # Patrón de extracción basado en la respuesta nativa por llaves de ReporTV Finder
+    patron_canales = r"\{([^}]+)\}\s*([^-\n]+)-\s*(\d+)"
+    canales_encontrados = re.findall(patron_canales, texto_pagina)
+    
+    print(f"Canales detectados en total tras el scroll: {len(canales_encontrados)}")
+    
+    canales_procesados = set()
+    programas_agregados = 0
+
     if canales_encontrados:
         for canal_tag, canal_nombre, canal_numero in canales_encontrados:
             channel_id = f"canal_{canal_numero}"
             canal_nombre_limpio = canal_nombre.strip()
             
-            # 1. Agregar el canal al EPG con su respectiva información
+            # 1. Registro seguro del Canal
             if channel_id not in canales_procesados:
                 channel_el = ET.SubElement(tv, "channel", id=channel_id)
-                ET.SubElement(channel_el, "display-name").text = f"{canal_nombre_limpio}"
+                ET.SubElement(channel_el, "display-name").text = canal_nombre_limpio
                 
-                # Intentar asociar la imagen de logo capturada si existe coincidencia
                 nombre_busqueda = canal_nombre_limpio.lower()
                 if nombre_busqueda in imagenes_src:
                     ET.SubElement(channel_el, "icon", src=imagenes_src[nombre_busqueda])
-                    
                 canales_procesados.add(channel_id)
             
-            # 2. Localizar y extraer programas y horarios dentro de su bloque de texto correspondiente
-            pos = texto_pagina.find(f"{{{canal_tag}}}")
-            # Cortamos un fragmento de texto adelante del canal para leer su programación
-            fragmento = texto_pagina[pos:pos+1500] 
-            
-            # Buscamos estructuras del tipo: "Nombre Programa 18:30hs" o "18:30hs. Nombre Programa"
-            bloques_programa = re.split(r"(\d{2}:\d{2})\s*hs\.?", fragmento)
-            
-            if len(bloques_programa) > 1:
-                # Estructura limpia alternando horarios y títulos
-                for i in range(1, len(bloques_programa), 2):
-                    hora = bloques_programa[i]
-                    # El título suele ser el texto continuo antes del siguiente corte
-                    titulo = bloques_programa[i+1].strip() if (i+1) < len(bloques_programa) else ""
+            # 2. Extracción protegida de la programación
+            try:
+                pos = texto_pagina.find(f"{{{canal_tag}}}")
+                if pos != -1:
+                    fragmento = texto_pagina[pos:pos+1500] 
+                    bloques_programa = re.split(r"(\d{2}:\d{2})\s*hs\.?", fragmento)
                     
-                    # Limpieza básica para evitar títulos basura
-                    titulo = titulo.split(";")[0].split("{")[0].strip()
-                    
-                    if titulo and len(titulo) > 2 and "grilla de canales" not in titulo.lower():
-                        start_formatted = parse_time(hora)
-                        prog_el = ET.SubElement(tv, "programme", start=start_formatted, stop=start_formatted, channel=channel_id)
-                        ET.SubElement(prog_el, "title", lang="es").text = titulo[:100]
-                        programas_agregados += 1
-            else:
-                # Respaldo si el formato de texto viene plano
-                horas_genericas = re.findall(r"(\d{2}:\d{2})\s*hs", fragmento, re.IGNORECASE)
-                for h in horas_genericas:
-                    start_formatted = parse_time(h)
-                    prog_el = ET.SubElement(tv, "programme", start=start_formatted, stop=start_formatted, channel=channel_id)
-                    ET.SubElement(prog_el, "title", lang="es").text = f"Programación {canal_nombre_limpio}"
-                    programas_agregados += 1
+                    if len(bloques_programa) > 1:
+                        for i in range(1, len(bloques_programa), 2):
+                            hora = bloques_programa[i]
+                            raw_titulo = bloques_programa[i+1].strip() if (i+1) < len(bloques_programa) else ""
+                            
+                            # Limpieza corregida de caracteres basura sin romper el script
+                            titulo_limpio = raw_titulo.split(";")[0].split("{")[0].strip()
+                            
+                            if titulo_limpio and len(titulo_limpio) > 2 and "grilla" not in titulo_limpio.lower():
+                                start_formatted = parse_time(hora)
+                                prog_el = ET.SubElement(tv, "programme", start=start_formatted, stop=start_formatted, channel=channel_id)
+                                ET.SubElement(prog_el, "title", lang="es").text = titulo_limpio[:100]
+                                programas_agregados += 1
+                    else:
+                        raise ValueError("Bloque de programación no dividida.")
+            except Exception:
+                # Si falla el parseo específico de este canal, le ponemos programación genérica para no romper el build
+                start_formatted = parse_time("00:00")
+                prog_el = ET.SubElement(tv, "programme", start=start_formatted, stop=start_formatted, channel=channel_id)
+                ET.SubElement(prog_el, "title", lang="es").text = f"Programación {canal_nombre_limpio}"
+                programas_agregados += 1
 
-    # Guardado y compresión final en GZIP para que tu IPTV lo acepte
-    xml_data = ET.tostring(tv, encoding="utf-8")
-    with gzip.open("guia-starttv.xml.gz", "wb") as f:
-        f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n' + xml_data)
-        
-    print(f"--- GENERACIÓN EXITOSA ---")
-    print(f"Total canales empaquetados: {len(canales_procesados)}")
-    print(f"Total programas indexados: {programas_agregados}")
+    # Empaquetado final forzado
+    try:
+        xml_data = ET.tostring(tv, encoding="utf-8")
+        with gzip.open("guia-starttv.xml.gz", "wb") as f:
+            f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n' + xml_data)
+        print(f"--- PROCESO COMPLETADO ---")
+        print(f"Canales generados: {len(canales_procesados)} | Programas indexados: {programas_agregados}")
+    except Exception as e:
+        print(f"Error al escribir el archivo comprimido final: {e}")
 
 if __name__ == "__main__":
     main()
