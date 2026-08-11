@@ -64,7 +64,7 @@
     {"start": "123000", "stop": "133000", "channel": "SIPSETVCUN.mx", "title": "Cancun Vive"},
     {"start": "130000", "stop": "133000", "channel": "TELEYUCATÁN.mx", "title": "Yo invito"},
     {"start": "130000", "stop": "140000", "channel": "CANAL10CANCUN.mx", "title": "Tiempo de Negocios"},
-    {"start": "130000", "stop": "140000", "channel": "SIPSETVYUC.mx", "title": "Ahi ta la cosa", "icon": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzHubWl5MAhhCDLNJNfXwIGKANQ5ylGAh4ARMhN6law0Frf0vDiVkFEzA&s=10"},
+    {"start": "130000", "stop": "140000", "channel": "SIPSETVYUC.mx", "title": "Ahi ta la cosa"},
     {"start": "133000", "stop": "140000", "channel": "TELEYUCATÁN.mx", "title": "El Maestro Abraham"},
     {"start": "133000", "stop": "143000", "channel": "SIPSETVCUN.mx", "title": "Sipse Noticias Ahora"},
     {"start": "140000", "stop": "150000", "channel": "TELEYUCATÁN.mx", "title": "Ven acá", "icon": "https://teleyucatan.com/img/Programas/Ven_aca/ven_aca.webp"},
