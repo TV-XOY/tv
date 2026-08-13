@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 
 # 1. Obtener los datos (Runtime suele usar APIs internas en JSON)
-url = "https://www.runtime.tv/?section=epgchannelssection" # Cambia por la URL exacta de la API detectada en la pestaña Network del navegador
+url = "https://api-ott.runtime.tv/search" # Cambia por la URL exacta de la API detectada en la pestaña Network del navegador
 response = requests.get(url)
 data = response.json()
 
