@@ -1,4 +1,4 @@
-name: Actualizar EPG Diariamente
+name: Actualizar EPG Runtime
 
 on:
   schedule:
