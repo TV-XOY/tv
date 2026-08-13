@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 
 # 1. Obtener los datos (Runtime suele usar APIs internas en JSON)
-url = "https://api-ott.runtime.tv/search" # Cambia por la URL exacta de la API detectada en la pestaña Network del navegador
+url = "https://api-ott.runtime.tv/getvideosegments?banners=0&connection=wifi&days=3&device_height=900&device_id=37ab0879dbae63a4&device_ifa=00000000-0000-0000-0000-000000000000&device_manufacturer=samsung&device_model=SM-X910N&device_type=tablet&device_width=1600&dnt=0&for_user=0&image_format=widescreen&image_width=457&language=es&linear_channel_id=16107&parent_id=16107&parent_type=linear_channel&partner=android&platform=android&session_id=4a287f46603c892e457ec23c11e3886f09e9497c&start=0&timestamp=1786664580&timezone=-0600&use_device_width_widescreen=1&version=15.332&sign=rLbuS0uJ3X%2Fpb59wwBdm5JJeU35jT%252BVEZ7rQVuv3ST0%3D" # Cambia por la URL exacta de la API detectada en la pestaña Network del navegador
 response = requests.get(url)
 data = response.json()
 
